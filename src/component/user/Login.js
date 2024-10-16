@@ -4,7 +4,6 @@ import config from '../../config';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './authContext';
-
 import { CartContext } from '../homepage/productsection/cart/cartContext'
 
 export default function Login() {
@@ -12,7 +11,7 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login,setUser} = useAuth();
     const { fetchCart } = useContext(CartContext);
 
     const handleSubmit = async (e) => {
@@ -29,11 +28,14 @@ export default function Login() {
             });
 
             if (response.data.message === 'Logged in successfully') {
-                login();
-                localStorage.setItem('userId', response.data.userdata.userId);   
-                fetchCart();
-                navigate('/');
+                const userData = response.data.userdata;
+                localStorage.setItem('userId', userData.userId);
+                setUser(userData);
+                login();  // Marks the user as logged in
+                await fetchCart();  // Wait until the cart is fetched
+                navigate('/', { replace: true });  // Navigate only after cart is fetched
             }
+            
         } catch (error) {
             if (error.response) {
                 setError(error.response.data || 'An error occurred during login');

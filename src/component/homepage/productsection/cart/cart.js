@@ -125,7 +125,7 @@ const CartSidebar = ({ toggleCart }) => {
                     <div className="d-flex align-items-center">
                       <button
                         className="btn btn-sm btn-outline-secondary"
-                        onClick={() => handleQuantityChange(item, -1)}
+                        onClick={() => handleQuantityChange(item, 0)}
                         disabled={loadingItems[loadingKeyMinus]}
                       >
                         {loadingItems[loadingKeyMinus] ? (

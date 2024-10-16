@@ -4,18 +4,25 @@ import { User, Heart, ShoppingCart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../productsection/cart/cartContext';
 import { AddressContext } from '../productsection/address/addressContext';
+import { useAuth } from '../../user/authContext';
 import config from '../../../config';
 import axios from 'axios';
 
 export default function Header({ toggleCart }) {
+  const { isLoggedIn, user, logout, setIsLoggedIn } = useAuth();
   const { count, cartItems, fetchCart, clearCart, setCartItems } = useContext(CartContext);
   const { selectedAddress, setSelectedAddress, getAddress } = useContext(AddressContext);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [addresses, setAddresses] = useState([]);
   const navigate = useNavigate();
 
-  const userId = localStorage.getItem('userId');
+  const checkLoginStatus = useCallback(() => {
+    const userId = localStorage.getItem('userId');
+    const loggedIn = !!userId;
+    setIsLoggedIn(loggedIn);
+    return loggedIn;
+  }, []);
 
   const loadCart = useCallback(async () => {
     setIsLoading(true);
@@ -29,13 +36,6 @@ export default function Header({ toggleCart }) {
   }, [fetchCart]);
 
   useEffect(() => {
-    const checkLoginStatus = () => {
-      const userId = localStorage.getItem('userId');
-      const loggedIn = !!userId;
-      setIsLoggedIn(loggedIn);
-      return loggedIn;
-    };
-
     const loadCartData = () => {
       const savedCart = localStorage.getItem('cart');
       if (savedCart) {
@@ -49,7 +49,7 @@ export default function Header({ toggleCart }) {
       loadCartData();
       setIsLoading(false);
     }
-  }, [loadCart, setCartItems]);
+  }, [loadCart, setCartItems, checkLoginStatus]);
 
   useEffect(() => {
     if (cartItems.length > 0) {
@@ -58,21 +58,15 @@ export default function Header({ toggleCart }) {
   }, [cartItems]);
 
   useEffect(() => {
-    console.log("Cart items:", cartItems);
-    console.log("Cart count:", count);
-    console.log("Is logged in:", isLoggedIn);
-    console.log("Is loading:", isLoading);
-  }, [cartItems, count, isLoggedIn, isLoading]);
-
-
-  const handleAddressSelect = (address) => {
-    setSelectedAddress(address);
-  };
-
+    if (addresses.length > 0) {
+      localStorage.setItem('addresses', JSON.stringify(addresses));
+    }
+  }, [addresses]);
+  
 
   useEffect(() => {
-
     const fetchAddresses = async () => {
+      const userId = localStorage.getItem('userId');
       if (userId) {
         const response = await getAddress(userId);
         if (response.success) {
@@ -84,8 +78,12 @@ export default function Header({ toggleCart }) {
         }
       }
     };
-    fetchAddresses();
-  }, [getAddress, userId, selectedAddress, setSelectedAddress]);
+  
+    if (isLoggedIn) {
+      fetchAddresses();  // Fetch addresses after login state is set
+    }
+  }, [isLoggedIn, getAddress, selectedAddress, setSelectedAddress]);
+  
 
   const handleLogout = async () => {
     try {
@@ -98,6 +96,8 @@ export default function Header({ toggleCart }) {
         localStorage.removeItem('cart');
         setIsLoggedIn(false);
         clearCart();
+        setAddresses([]);
+      setSelectedAddress(null);
         navigate('/login');
       }
     } catch (error) {
@@ -120,14 +120,6 @@ export default function Header({ toggleCart }) {
               </span>
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              {addresses.map((address, index) => (
-                <Dropdown.Item
-                  key={index}
-                  onClick={() => handleAddressSelect(address)}
-                >
-                  {`${address.city}, ${address.landmark}`}
-                </Dropdown.Item>
-              ))}
               <Dropdown.Divider />
               <Dropdown.Item as={Link} to="/AddressSelection">Add New Address</Dropdown.Item>
             </Dropdown.Menu>
