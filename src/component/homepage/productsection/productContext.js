@@ -13,7 +13,7 @@ export const ProductProvider = ({ children }) => {
   const fetchProductsByCategory = async (categoryId, productId) => {
     setLoading(true);
     try {
-      const response = await axios.post('${config.API_URL}/productitem', {
+      const response = await axios.post(`${config.API_URL}/productitem`, {
         categoryId: categoryId,
         productId: productId
       });

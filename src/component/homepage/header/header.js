@@ -89,7 +89,7 @@ export default function Header({ toggleCart }) {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post('${config.API_URL}/logout', {}, {
+      const response = await axios.post(`${config.API_URL}/logout`, {}, {
         withCredentials: true,
       });
 

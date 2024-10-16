@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import config from '../../../config';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -8,7 +9,7 @@ const SelectByCategory = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/categories');
+        const response = await axios.get(`${config.API_URL}/categories`);
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error);
