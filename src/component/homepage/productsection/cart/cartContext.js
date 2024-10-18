@@ -12,8 +12,13 @@ export const CartProvider = ({ children }) => {
   const fetchCart = useCallback(async () => {
     setIsLoading(true);
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.get(`${config.API_URL}/cartGet`, {
         withCredentials: true,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+
       });
 
       if (response.status === 200) {
