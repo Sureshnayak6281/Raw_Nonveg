@@ -30,10 +30,13 @@ export default function Login() {
             if (response.data.message === 'Logged in successfully') {
                 const userData = response.data.userdata;
                 localStorage.setItem('userId', userData.userId);
+                const token = response.data.token;
+                console.log('Received token:', token);
+                localStorage.setItem('token', token);
                 setUser(userData);
-                login();  // Marks the user as logged in
-                await fetchCart();  // Wait until the cart is fetched
-                navigate('/', { replace: true });  // Navigate only after cart is fetched
+                login(); 
+                await fetchCart();  
+                navigate('/', { replace: true }); 
             }
             
         } catch (error) {
