@@ -89,15 +89,19 @@ export default function Header({ toggleCart }) {
     try {
       const response = await axios.post(`${config.API_URL}/logout`, {}, {
         withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
       });
 
       if (response.status === 200) {
         localStorage.removeItem('userId');
         localStorage.removeItem('cart');
+        localStorage.removeItem('token');
         setIsLoggedIn(false);
         clearCart();
         setAddresses([]);
-      setSelectedAddress(null);
+        setSelectedAddress(null);
         navigate('/login');
       }
     } catch (error) {
